@@ -101,12 +101,11 @@ class MLP:
             n = np.random.randint(samples.size)
             self.propagate_forward( samples['input'][n] )
             self.propagate_backward( samples['output'][n], lrate, momentum )
-        # Test
-        for i in range(samples.size):
-            o = network.propagate_forward( samples['input'][i] )
-            print i, samples['input'][i], '%.2f' % o[0],
-            print '(expected %.2f)' % samples['output'][i]
-        print
+
+    def Test(self, sample):
+        o = self.propagate_forward( sample['input'])
+        print "Found: ", sample['input'], '%.2f' % o,
+        
         
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':

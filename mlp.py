@@ -86,7 +86,7 @@ class MLP:
             deltas.insert(0,delta)
             
         # Update weights
-        for i in range(len(self.weights)):
+        for i in xrange(len(self.weights)):
             layer = np.atleast_2d(self.layers[i])
             delta = np.atleast_2d(deltas[i])
             dw = np.dot(layer.T,delta)
@@ -99,18 +99,19 @@ class MLP:
     def learn(self,samples, epochs=2500, lrate=.1, momentum=0.1):
         # Train 
         errors = []
-        for i in range(epochs):
-            n = np.random.randint(samples.size)
-            self.propagate_forward( samples['input'][n] )
-            e = self.propagate_backward( samples['output'][n], lrate, momentum )
-            if e <= self.epsilon: #learned enough
-                return None
+        old_e = 0
+        for i in xrange(epochs): #sample is always one dimension
+            self.propagate_forward( samples['input'] )
+            e = self.propagate_backward( samples['output'], lrate, momentum )
             print e
+            if e == old_e or e <= self.epsilon: #learned enough
+                return e
+            old_e = e
             errors.append(e)
 
     def Test(self, sample):
         o = self.propagate_forward( sample['input'])
-        print "Found: ", sample['input'], '%.2f' % o, "\n"
+        print "Found: ", '%.2f' % o
         
         
 # -----------------------------------------------------------------------------
@@ -129,7 +130,6 @@ if __name__ == '__main__':
             o = network.propagate_forward( samples['input'][i] )
             print i, samples['input'][i], '%.2f' % o[0],
             print '(expected %.2f)' % samples['output'][i]
-        print
 
     network = MLP(2,2,1)
     samples = np.zeros(4, dtype=[('input',  float, 2), ('output', float, 1)])

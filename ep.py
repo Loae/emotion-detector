@@ -15,7 +15,8 @@ class EmotionPerceptron:
 
         #we add 2 hidden layers
     def init_mlp(self, img_h, img_w):
-            self.network = mlp.MLP(img_h*img_w,img_w,img_h,1)
+        self.input_size = img_h*img_w
+        self.network = mlp.MLP(self.input_size, img_w, img_h, 1)
             
     def load_img_by_emotion(self, dir_name):
         self.folder = dir_name
@@ -50,6 +51,21 @@ class EmotionPerceptron:
         else:
             return None
 
+    def img_list_to_samples(self, img_list):
+         samples = np.zeros(len(img_list), dtype = [('input', float, self.input_size), ('output', float ,1)])
+         for i in xrange(len(img_list)):
+             path = "{}/{}".format(self.folder, img_list[i])
+             print "Loading ", path
+             img = cv2.imread(path)
+             if img is not None:
+                 gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                 h,w = gray_img.shape
+                 pixels = self.pixel_list(gray_img)
+                 samples[i] = tuple(pixels), 1
+             else:
+                 return None
+         return samples
+
     def img_list_emo_people(self, emotion, nb_people = -1):
         if (nb_people == -1):
             return self.img_dico[emotion]
@@ -70,14 +86,13 @@ class EmotionPerceptron:
     def learn_emo_people(self, emotion, nb_people = -1):
         self.network.reset()        
         img_list = self.img_list_emo_people(emotion, nb_people)
-        for img in img_list:
-            n,s = self.img_to_sample(img)
-            print "Learning ", n
-            self.network.learn(s, self.nb_try)
+        train_set = self.img_list_to_samples(img_list)
+        print "Learning ", img_list
+        self.network.learn(train_set, self.nb_try)
     
     def test_list_img(self, tests):
         for f in tests:
             (n, s) = self.img_to_sample(f)
-            print "Testing ", n
+            print "Testing ", n, "size ", s["input"].size
             self.network.Test(s)
         

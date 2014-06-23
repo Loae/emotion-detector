@@ -25,7 +25,7 @@ class MLP:
         ''' Initialization of the perceptron with given sizes.  '''
 
         self.shape = args
-        self.epsilon = 0.00 #minimum error
+        self.epsilon = 10e-5 #minimum error
         n = len(args)
 
         # Build layers
@@ -106,7 +106,7 @@ class MLP:
             self.propagate_forward( samples['input'][n] )
             e = self.propagate_backward( samples['output'][n], lrate, momentum )
             print e
-            if e == old_e or e <= self.epsilon: #learned enough
+            if e <= self.epsilon: #learned enough
                 return e
             old_e = e
             errors.append(e)

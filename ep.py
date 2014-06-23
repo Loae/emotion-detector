@@ -33,7 +33,7 @@ class EmotionPerceptron:
         res = []
         for line in img:
             for px in line:
-                res.append(px)
+                res.append(float(px))
         return res
 
     def img_to_sample(self, img_filename):
@@ -45,7 +45,7 @@ class EmotionPerceptron:
             h,w = gray_img.shape
             pixels = self.pixel_list(gray_img)
             sample = np.zeros(1, dtype = [('input', float, len(pixels)), ('output', float ,1)])
-            sample[0] = tuple(pixels), 1
+            sample[0] = tuple(pixels), 0
             pack = (img_filename, sample)
             return pack
         else:
@@ -53,7 +53,8 @@ class EmotionPerceptron:
 
     def img_list_to_samples(self, img_list):
          samples = np.zeros(len(img_list), dtype = [('input', float, self.input_size), ('output', float ,1)])
-         for i in xrange(len(img_list)):
+         n = len(img_list)
+         for i in xrange(n):
              path = "{}/{}".format(self.folder, img_list[i])
              print "Loading ", path
              img = cv2.imread(path)
@@ -61,7 +62,7 @@ class EmotionPerceptron:
                  gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                  h,w = gray_img.shape
                  pixels = self.pixel_list(gray_img)
-                 samples[i] = tuple(pixels), 1
+                 samples[i] = tuple(pixels), float(2*i-n)/(2*n)
              else:
                  return None
          return samples

@@ -113,7 +113,9 @@ class MLP:
 
     def Test(self, sample):
         o = self.propagate_forward(sample['input'])
-        print "Found: ", '%.2f' % o
+        l = o.tolist()
+        print l
+        return l.index(max(l))
         
         
 # -----------------------------------------------------------------------------

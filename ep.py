@@ -16,7 +16,7 @@ class EmotionPerceptron:
         #we add 2 hidden layers
     def init_mlp(self, img_h, img_w):
         self.input_size = img_h*img_w
-        self.network = mlp.MLP(self.input_size, img_w, img_h, 1)
+        self.network = mlp.MLP(self.input_size, img_w, img_h, len(self.emotions))
             
     def load_img_by_emotion(self, dir_name):
         self.folder = dir_name
@@ -36,7 +36,7 @@ class EmotionPerceptron:
                 res.append(float(px))
         return res
 
-    def img_to_sample(self, img_filename):
+    def img_to_sample(self, img_filename, label = 0):
         path = "{}/{}".format(self.folder, img_filename)
         print "Loading ", path
         img = cv2.imread(path)
@@ -44,15 +44,18 @@ class EmotionPerceptron:
             gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             h,w = gray_img.shape
             pixels = self.pixel_list(gray_img)
-            sample = np.zeros(1, dtype = [('input', float, len(pixels)), ('output', float ,1)])
-            sample[0] = tuple(pixels), 0
+            sample = np.zeros(1, dtype = [('input', float, len(pixels)), ('output', float ,len(self.emotions))])
+            output = [0,]*len(self.emotions)
+            output[label] = 1
+            sample['input'] = pixels
+            sample['output'] = output
             pack = (img_filename, sample)
             return pack
         else:
             return None
 
-    def img_list_to_samples(self, img_list):
-         samples = np.zeros(len(img_list), dtype = [('input', float, self.input_size), ('output', float ,1)])
+    def img_list_to_samples(self, img_list, label = 0):
+         samples = np.zeros(len(img_list), dtype = [('input', float, self.input_size), ('output', float ,len(self.emotions))])
          n = len(img_list)
          for i in xrange(n):
              path = "{}/{}".format(self.folder, img_list[i])
@@ -62,7 +65,10 @@ class EmotionPerceptron:
                  gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                  h,w = gray_img.shape
                  pixels = self.pixel_list(gray_img)
-                 samples[i] = tuple(pixels), float(2*i-n)/(2*n)
+                 output = [0,]*len(self.emotions)
+                 output[label] = 1
+                 samples['input'][i] = pixels
+                 samples['output'][i] = output
              else:
                  return None
          return samples
@@ -86,14 +92,15 @@ class EmotionPerceptron:
 
     def learn_emo_people(self, emotion, nb_people = -1):
         self.network.reset()        
-        img_list = self.img_list_emo_people(emotion, nb_people)
-        train_set = self.img_list_to_samples(img_list)
+        img_list = self.img_list_emo_people(emotion)
+        train_set = self.img_list_to_samples(img_list, self.emotions.index(emotion))
         print "Learning ", img_list
-        self.network.learn(train_set, self.nb_try)
+        self.network.learn(train_set, self.nb_try, 0.5)
     
     def test_list_img(self, tests):
         for f in tests:
             (n, s) = self.img_to_sample(f)
             print "Testing ", n, "size ", s["input"].size
-            self.network.Test(s)
+            c = self.network.Test(s)
+            print "Found ", self.emotions[c]
         

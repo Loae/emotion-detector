@@ -9,7 +9,7 @@ class EmotionPerceptron:
         self.emotions = ["AN", "DI", "FE", "HA", "SA", "NE", "SU"]
         self.network = mlp.MLP(256*256,256,256,1)
         self.img_dico = {}
-        self.nb_try = 100
+        self.nb_try = 2500
         self.folder = ""
         self.init_mlp(256, 256)
 
@@ -92,10 +92,10 @@ class EmotionPerceptron:
 
     def learn_emo_people(self, emotion, nb_people = -1):
         self.network.reset()        
-        img_list = self.img_list_emo_people(emotion)
+        img_list = self.img_list_emo_people(emotion, nb_people)
         train_set = self.img_list_to_samples(img_list, self.emotions.index(emotion))
         print "Learning ", img_list
-        self.network.learn(train_set, self.nb_try, 0.5)
+        self.network.learn(train_set, self.nb_try)
     
     def test_list_img(self, tests):
         for f in tests:

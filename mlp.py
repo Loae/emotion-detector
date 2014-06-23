@@ -105,11 +105,11 @@ class MLP:
             n = np.random.randint(samples.size)
             self.propagate_forward( samples['input'][n] )
             e = self.propagate_backward( samples['output'][n], lrate, momentum )
-            print e
             if e <= self.epsilon: #learned enough
                 return e
             old_e = e
             errors.append(e)
+        print 'Last error ', old_e
 
     def Test(self, sample):
         o = self.propagate_forward(sample['input'])

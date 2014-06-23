@@ -104,7 +104,7 @@ class MLP:
 
     def Test(self, sample):
         o = self.propagate_forward( sample['input'])
-        print "Found: ", sample['input'], '%.2f' % o,
+        print "Found: ", sample['input'], '%.2f' % o, "\n"
         
         
 # -----------------------------------------------------------------------------

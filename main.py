@@ -10,7 +10,7 @@ def main():
         detector.test_list_img(tests)
         while(True):
                 detector.test_from_cam()
-                c = cv2.WaitKey(30)
+                c = cv2.waitKey(30)
                 if c != -1 :
                     break
                 

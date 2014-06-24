@@ -3,6 +3,20 @@ import cv2
 import os
 import numpy as np
 
+emo_text = {"AN": "ANGRY",
+                "DI" : "DISGUTS",
+                "FE" : "FEAR",
+                "HA": "HAPPY",
+                "SA": "SAD",
+                "NE" : "NEUTRAL",
+                "SU": "SURPRISE"}
+emo_list = ["ANGRY",
+            "DISGUTS",
+            "FEAR",
+            "HAPPY",
+            "SAD",
+            "NEUTRAL",
+            "SURPRISE"]
 class EmotionPerceptron:
     def __init__(self):
         self.emotions = ["AN", "DI", "FE", "HA", "SA", "NE", "SU"]
@@ -135,14 +149,18 @@ class EmotionPerceptron:
 
     def test_from_cam(self):
         frame = self.get_frame()
-        cv2.imshow("Your Face", frame)
         self.test_frame(frame)
 
     def test_frame(self, frame):
         n, sample = self.frame_to_sample(frame)
         print "Testing From Webcam"
-        c = self.network.Test(sample)
-        print "Found ", self.emotions[c]
+        emo = self.network.Test(sample)
+        if emo is not None:
+            text = emo_list[emo]
+            print "Found ", self.emotions[emo]
+            cv2.putText(frame,text, (5,200), cv2.FONT_HERSHEY_PLAIN, 1.5, 255)
+            cv2.imshow("Emotion Detector", frame)
+
         
     def save_to_file(self, filename):
         self.network.save_to_file(filename)

@@ -3,7 +3,6 @@ import cv2
 import os
 import numpy as np
 
-
 class EmotionPerceptron:
     def __init__(self):
         self.emotions = ["AN", "DI", "FE", "HA", "SA", "NE", "SU"]
@@ -103,4 +102,7 @@ class EmotionPerceptron:
             print "Testing ", n, "size ", s["input"].size
             c = self.network.Test(s)
             print "Found ", self.emotions[c]
-        
+    
+    def save_to_file(self, filename):
+        self.network.save_to_file(filename)
+

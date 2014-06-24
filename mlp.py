@@ -116,8 +116,51 @@ class MLP:
         l = o.tolist()
         print l
         return l.index(max(l))
+
+    def save_to_file(self, filename):
+        with open(filename, 'w') as f:
+            np.savez(f, w = self.weights, l = self.layers)
+
+    def load_from_file(self, filename):
+        npz = np.load(filename)
+        self.weights = []
+        self.weights = npz['w']
+        self.layers = []
+        self.layers = npz['l']
+        print "weights ", self.weights
+        print "Layers ", self.layers
         
         
+
+def learn(network,samples, epochs=2500, lrate=.1, momentum=0.1):
+    # Train 
+    for i in range(epochs):
+        n = np.random.randint(samples.size)
+        network.propagate_forward( samples['input'][n] )
+        network.propagate_backward( samples['output'][n], lrate, momentum )
+        # Test
+    for i in range(samples.size):
+        o = network.propagate_forward( samples['input'][i] )
+        print i, samples['input'][i], '%.2f' % o[0],
+        print '(expected %.2f)' % samples['output'][i]
+
+def main():
+    network = MLP(2,2,1)
+    samples = np.zeros(4, dtype=[('input',  float, 2), ('output', float, 1)])
+
+    # Example 1 : OR logical function
+    # -------------------------------------------------------------------------
+    print "Learning the OR logical function"
+    network.reset()
+    network.save_to_file("network_")
+    network.load_from_file("network_")
+    samples = np.zeros(4, dtype=[('input',  float, 2), ('output', float, 1)])
+    samples[0] = (0,0), 0
+    samples[1] = (1,0), 1
+    samples[2] = (0,1), 1
+    samples[3] = (1,1), 1
+    learn(network, samples)
+    
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
     import matplotlib

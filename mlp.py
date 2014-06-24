@@ -105,7 +105,7 @@ class MLP:
             n = np.random.randint(samples.size)
             self.propagate_forward( samples['input'][n] )
             e = self.propagate_backward( samples['output'][n], lrate, momentum )
-            if e <= self.epsilon: #learned enough
+            if abs(e) <= self.epsilon: #learned enough
                 return e
             old_e = e
             errors.append(e)
@@ -114,7 +114,6 @@ class MLP:
     def Test(self, sample):
         o = self.propagate_forward(sample['input'])
         l = o.tolist()
-        print l
         return l.index(max(l))
 
     def save_to_file(self, filename):
@@ -130,8 +129,6 @@ class MLP:
         print "weights ", self.weights
         print "Layers ", self.layers
         
-        
-
 def learn(network,samples, epochs=2500, lrate=.1, momentum=0.1):
     # Train 
     for i in range(epochs):

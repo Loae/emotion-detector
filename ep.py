@@ -11,6 +11,15 @@ class EmotionPerceptron:
         self.nb_try = 2500
         self.folder = ""
         self.init_mlp(256, 256)
+        self.init_cam()
+    
+    def init_cam(self):
+        self.capture = cv2.VideoCapture(0)
+
+    def get_frame(self):
+        ret, frame = self.capture.read()
+        small = cv2.resize(frame, (256, 256))
+        return small
 
         #we add 2 hidden layers
     def init_mlp(self, img_h, img_w):
@@ -49,6 +58,20 @@ class EmotionPerceptron:
             sample['input'] = pixels
             sample['output'] = output
             pack = (img_filename, sample)
+            return pack
+        else:
+            return None
+
+    def frame_to_sample(self, img):
+        if img is not None:
+            gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            h,w = gray_img.shape
+            pixels = self.pixel_list(gray_img)
+            sample = np.zeros(1, dtype = [('input', float, len(pixels)), ('output', float ,len(self.emotions))])
+            output = [0,]*len(self.emotions)
+            sample['input'] = pixels
+            sample['output'] = output
+            pack = ("Capture", sample)
             return pack
         else:
             return None
@@ -96,13 +119,42 @@ class EmotionPerceptron:
         print "Learning ", img_list
         self.network.learn(train_set, self.nb_try)
     
+    def all_img(self):
+        res = []
+        for img_list in self.img_dico.values():
+            for img in img_list:
+                res.append(img)
+        return res
+
     def test_list_img(self, tests):
         for f in tests:
             (n, s) = self.img_to_sample(f)
             print "Testing ", n, "size ", s["input"].size
             c = self.network.Test(s)
             print "Found ", self.emotions[c]
-    
+
+    def test_from_cam(self):
+        frame = self.get_frame()
+        cv2.imshow("Your Face", frame)
+        self.test_frame(frame)
+
+    def test_frame(self, frame):
+        n, sample = self.frame_to_sample(frame)
+        print "Testing From Webcam"
+        c = self.network.Test(sample)
+        print "Found ", self.emotions[c]
+        
     def save_to_file(self, filename):
         self.network.save_to_file(filename)
 
+
+def test():
+    detector = EmotionPerceptron()
+    detector.set_dir("images")
+    while(True):
+        detector.test_from_cam()
+        c = cv2.waitKey(30)
+        if c != -1 :
+            break
+                
+    cv2.destroyAllWindows()

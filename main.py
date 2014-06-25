@@ -4,16 +4,14 @@ import cv2
 def main():
         detector = EmotionPerceptron()
         detector.set_dir("images")
-        detector.learn_emo_people("HA",1)
+        detector.load_from_file("SAVE_weights")
+#       detector.learn_all_emotions(1)
+#       detector.save_to_file("emotion_weights")
         tests = []
         tests = detector.all_img()
-        detector.test_list_img(tests)
+        detector.run_scenarios(tests)
         while(True):
                 detector.test_from_cam()
-                c = cv2.waitKey(30)
-                if c != -1 :
-                    break
-                
         cv2.destroyAllWindows()
         
 if __name__ == '__main__':
